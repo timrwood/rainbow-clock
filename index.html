@@ -30,7 +30,7 @@
 		fill: #5e1ec7;
 		color: #5e1ec7;
 	}
-	h1 {
+	imakemyowntagnames {
 		position: fixed;
 		bottom: 0;
 		left: 0;
@@ -39,6 +39,7 @@
 		font: 80px/1 "Helvetica Neue", Arial, sans-serif;
 		font-weight: 100;
 		text-align: center;
+		padding: 40px;
 	}
 </style>
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="-100 -100 200 200">
@@ -49,9 +50,9 @@
 	<path id="blue" class="blue" />
 	<path id="purple" class="purple" />
 </svg>
-<h1>
+<imakemyowntagnames>
 	<span id="red-text" class="red">December</span> <span id="orange-text" class="orange">5th</span>	<span id="yellow-text" class="yellow">10</span>:<span id="green-text" class="green">24</span>:<span id="blue-text" class="blue">20</span>.<span id="purple-text" class="purple">300</span>
-</h1>
+</imakemyowntagnames>
 <script>
 
 var and_honeybadger_dont_give_a_shit_about_external_javascript_either;
@@ -128,8 +129,7 @@ var or_leaking_global_vars;
 				"L", 0, -this.inner,
 				"A", this.inner, this.inner, 0, clockwise, 1, x * this.inner, y * this.inner,
 				"L", x * this.outer, y * this.outer,
-				"A", this.outer, -this.outer, 0, clockwise, 0, 0, -this.outer,
-				"z"
+				"A", this.outer, -this.outer, 0, clockwise, 0, 0, -this.outer
 			].join(' ');
 		}
 	};
