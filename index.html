@@ -1,0 +1,222 @@
+
+<!doctype html>
+<title>rainbow.clock</title>
+<style>
+	body {
+		background: #honeybadger_dont_give_a_shit_about_external_css_styles;
+		background: #c0ffee;
+	}
+	.red {
+		fill: #d00d1e;
+		color: #d00d1e;
+	}
+	.orange {
+		fill: #c4771e;
+		color: #c4771e;
+	}
+	.yellow {
+		fill: #c0dd1e;
+		color: #c0dd1e;
+	}
+	.green {
+		fill: #10ca1e;
+		color: #10ca1e;
+	}
+	.blue {
+		fill: #0ff5e7;
+		color: #0ff5e7;
+	}
+	.purple {
+		fill: #5e1ec7;
+		color: #5e1ec7;
+	}
+	h1 {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		color: rgba(0, 0, 0, 0.2);
+		font: 80px/1 "Helvetica Neue", Arial, sans-serif;
+		font-weight: 100;
+		text-align: center;
+	}
+</style>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="-100 -100 200 200">
+	<path id="red" class="red" />
+	<path id="orange" class="orange" />
+	<path id="yellow" class="yellow" />
+	<path id="green" class="green" />
+	<path id="blue" class="blue" />
+	<path id="purple" class="purple" />
+</svg>
+<h1>
+	<span id="red-text" class="red">December</span> <span id="orange-text" class="orange">5th</span>	<span id="yellow-text" class="yellow">10</span>:<span id="green-text" class="green">24</span>:<span id="blue-text" class="blue">20</span>.<span id="purple-text" class="purple">300</span>
+</h1>
+<script>
+
+var and_honeybadger_dont_give_a_shit_about_external_javascript_either;
+var or_leaking_global_vars;
+
+(function(){
+
+	var raf = window.requestAnimationFrame ||
+		window.webkitRequestAnimationFrame ||
+		window.mozRequestAnimationFrame ||
+		window.oRequestAnimationFrame ||
+		window.msRequestAnimationFrame ||
+		function( callback ){
+			setTimeout(callback, 1000 / 60);
+		};
+
+	function ordinal(number) {
+		var b = number % 10;
+		return (~~ (number % 100 / 10) === 1) ? 'th' :
+			(b === 1) ? 'st' :
+			(b === 2) ? 'nd' :
+			(b === 3) ? 'rd' : 'th';
+	}
+
+	function pad(number, targetLength) {
+		var output = number + '';
+		while (output.length < targetLength) {
+			output = '0' + output;
+		}
+		return output;
+	}
+
+	var colors = [],
+		date,
+		TAU = Math.PI * 2;
+
+	function Color(input) {
+		for (var i in input) {
+			this[i] = input[i];
+		}
+		this.dom = document.getElementById(this.id);
+		this.domText = document.getElementById(this.id + "-text");
+		this.angle = Math.random() * Math.PI * 2;
+		console.log(this);
+	}
+
+	Color.prototype = {
+		percent : function () {
+			var current = this._val = date[this.getter]();
+			if (this.last) {
+				current += this.last._percent;
+			}
+			this._percent = (current / this.max());
+			this.angle = (this._percent + 0.25) * TAU;
+		},
+		text : function () {
+			return pad(this._val, this.pad);
+		},
+		max : function () {
+			return this._max;
+		},
+		update : function () {
+			this.percent();
+			this.domText.innerHTML = this.text();
+			this.dom.setAttribute('d', this.path());
+		},
+		path : function () {
+			var x = -Math.cos(this.angle),
+				y = -Math.sin(this.angle),
+				rad = (this.angle + (Math.PI * 1.5)) % TAU,
+				clockwise = +(rad > Math.PI);
+			return [
+				"M", 0, -this.outer,
+				"L", 0, -this.inner,
+				"A", this.inner, this.inner, 0, clockwise, 1, x * this.inner, y * this.inner,
+				"L", x * this.outer, y * this.outer,
+				"A", this.outer, -this.outer, 0, clockwise, 0, 0, -this.outer,
+				"z"
+			].join(' ');
+		}
+	};
+
+	[
+		{
+			id : "purple",
+			outer : 10,
+			inner : 0,
+			getter : "getMilliseconds",
+			_max : 1000,
+			pad : 3
+		}, {
+			id : "blue",
+			outer : 20,
+			inner : 10,
+			getter : "getSeconds",
+			_max : 60,
+			pad : 2
+		}, {
+			id : "green",
+			outer : 30,
+			inner : 20,
+			getter : "getMinutes",
+			_max : 60,
+			pad : 2
+		}, {
+			id : "yellow",
+			outer : 40,
+			inner : 30,
+			getter : "getHours",
+			_max : 24,
+			pad : 2
+		}, {
+			id : "orange",
+			outer : 50,
+			inner : 40,
+			getter : "getDate",
+			max : function () {
+				var d = new Date(),
+					last = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+				return last.getDate();
+			},
+			text : function () {
+				return this._val + ordinal(this._val);
+			}
+		}, {
+			id : "red",
+			outer : 60,
+			inner : 50,
+			getter : "getMonth",
+			_max : 12,
+			text : function () {
+				return [
+					"January",
+					"February",
+					"March",
+					"April",
+					"May",
+					"June",
+					"July",
+					"August",
+					"September",
+					"October",
+					"November",
+					"December"
+				][this._val];
+			}
+		}
+	].forEach(function(a){
+		if (colors.length) {
+			a.last = colors[colors.length - 1];
+		}
+		colors.push(new Color(a));
+	});
+
+	function animate () {
+		date = new Date();
+
+		colors.forEach(function(color){
+			color.update();
+		});
+
+		raf(animate);
+	}
+
+	animate();
+
+})();
+</script>
